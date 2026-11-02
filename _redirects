@@ -1,0 +1,11 @@
+# Old WordPress URLs -> new pages (keeps existing links and Google results working)
+/mining-app/            /work/rio-tinto/   301
+/jira-project/          /work/atlassian/   301
+/proptrack-valuations/  /work/proptrack/   301
+/swinburne-university/  /work/swinburne/   301
+/officeworks/           /work/officeworks/ 301
+/projects/              /work/             301
+/resume/                /about/            301
+/design-philosophy/*    /about/            301
+/wp-admin/*             /404.html          404
+/wp-login.php           /404.html          404

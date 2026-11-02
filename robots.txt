@@ -1,0 +1,3 @@
+User-agent: *
+Disallow: /work/rio-tinto/
+Sitemap: https://davidnewman.com.au/sitemap.xml
