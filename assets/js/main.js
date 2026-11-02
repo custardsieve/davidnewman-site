@@ -1,6 +1,7 @@
 // David Newman Design — progressive enhancements only.
 // Everything on the site works without this file.
 (() => {
+  const siteRoot = new URL("../../", document.currentScript ? document.currentScript.src : location.href);
   document.documentElement.classList.remove("no-js");
 
   // Header border once the page scrolls
@@ -51,6 +52,6 @@
 
   // Service worker (offline + installable app)
   if ("serviceWorker" in navigator && location.protocol === "https:") {
-    window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));
+    window.addEventListener("load", () => navigator.serviceWorker.register(new URL("sw.js", siteRoot), { scope: siteRoot.pathname }).catch(() => {}));
   }
 })();
