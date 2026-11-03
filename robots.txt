@@ -1,3 +1,7 @@
+# STAGING: keep search engines out.
+# At launch, replace with:
+#   User-agent: *
+#   Disallow: /work/rio-tinto/
+#   Sitemap: https://davidnewman.com.au/sitemap.xml
 User-agent: *
-Disallow: /work/rio-tinto/
-Sitemap: https://davidnewman.com.au/sitemap.xml
+Disallow: /
