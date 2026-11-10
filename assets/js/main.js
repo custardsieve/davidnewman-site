@@ -16,14 +16,43 @@
     toggle.className = "theme-toggle";
     toggle.setAttribute("aria-label", "Switch to dark mode");
     toggle.setAttribute("aria-pressed", "false");
-    toggle.innerHTML = '<span class="theme-toggle__icon" aria-hidden="true">☀️</span><span class="theme-toggle__label">Light mode</span>';
+    const svgNamespace = "http://www.w3.org/2000/svg";
+    const themeIcon = document.createElementNS(svgNamespace, "svg");
+    themeIcon.className = "theme-toggle__icon";
+    themeIcon.setAttribute("viewBox", "0 -960 960 960");
+    themeIcon.setAttribute("aria-hidden", "true");
+    toggle.appendChild(themeIcon);
+    let iconRequest = 0;
+
+    const updateThemeIcon = (isDark) => {
+      const request = ++iconRequest;
+      const iconName = isDark ? "light_mode_20px.svg" : "dark_mode_20px.svg";
+      fetch(new URL(`assets/icons/${iconName}`, siteRoot))
+        .then((response) => {
+          if (!response.ok) throw new Error("Theme icon could not be loaded");
+          return response.text();
+        })
+        .then((svgText) => {
+          const iconDocument = new DOMParser().parseFromString(svgText, "image/svg+xml");
+          const sourcePath = iconDocument.querySelector("svg > path");
+          const pathData = sourcePath?.getAttribute("d");
+          if (request !== iconRequest || !pathData) return;
+
+          const path = document.createElementNS(svgNamespace, "path");
+          path.setAttribute("d", pathData);
+          path.setAttribute("fill", "currentColor");
+          themeIcon.replaceChildren(path);
+        })
+        .catch(() => {});
+    };
 
     const applyTheme = (theme) => {
       const isDark = theme === "dark";
       document.documentElement.setAttribute("data-theme", theme);
       toggle.setAttribute("aria-pressed", String(isDark));
       toggle.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
-      toggle.innerHTML = `<span class="theme-toggle__icon" aria-hidden="true">${isDark ? "🌙" : "☀️"}</span><span class="theme-toggle__label">${isDark ? "Light mode" : "Dark mode"}</span>`;
+      toggle.title = isDark ? "Switch to light mode" : "Switch to dark mode";
+      updateThemeIcon(isDark);
       const themeColor = document.querySelector('meta[name="theme-color"]');
       if (themeColor) themeColor.setAttribute("content", isDark ? "#0c0c0c" : "#ffffff");
       try {
