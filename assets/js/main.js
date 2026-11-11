@@ -156,6 +156,73 @@
     });
   }
 
+  // Default direction; individual galleries can override with a direction class.
+  const GALLERY_SCROLL_DIRECTION = "left-to-right";
+  const galleryScrollRecords = [];
+  if (!reduceMotion) {
+    document.querySelectorAll(".gallery--scroll").forEach((gallery) => {
+      if (gallery.children.length < 2) return;
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "gallery-scroll";
+      const viewport = document.createElement("div");
+      viewport.className = "gallery-scroll__viewport";
+      gallery.before(wrapper);
+      wrapper.appendChild(viewport);
+      viewport.appendChild(gallery);
+      galleryScrollRecords.push({ wrapper, viewport, track: gallery });
+    });
+
+    if (galleryScrollRecords.length) {
+      const mobileQuery = window.matchMedia("(max-width: 48rem)");
+
+      const updateGalleryScroll = () => {
+        galleryScrollRecords.forEach(({ wrapper, viewport, track }) => {
+          if (mobileQuery.matches) {
+            wrapper.style.height = "";
+            track.style.transform = "";
+            return;
+          }
+
+          const travel = Math.max(0, track.scrollWidth - viewport.clientWidth);
+          const viewportHeight = viewport.offsetHeight;
+          wrapper.style.height = `${viewportHeight + travel}px`;
+          const scrollRange = wrapper.offsetHeight - viewportHeight;
+          if (scrollRange <= 0) {
+            track.style.transform = "translate3d(0, 0, 0)";
+            return;
+          }
+
+          const stickyTop = Number.parseFloat(getComputedStyle(viewport).top) || 0;
+          const progress = Math.min(1, Math.max(0, (stickyTop - wrapper.getBoundingClientRect().top) / scrollRange));
+          const direction = track.classList.contains("gallery--right-to-left")
+            ? "right-to-left"
+            : track.classList.contains("gallery--left-to-right")
+              ? "left-to-right"
+              : GALLERY_SCROLL_DIRECTION;
+          const offset = direction === "right-to-left"
+            ? travel * (progress - 1)
+            : -travel * progress;
+          track.style.transform = `translate3d(${offset}px, 0, 0)`;
+        });
+      };
+
+      let galleryTicking = false;
+      const scheduleGalleryScroll = () => {
+        if (galleryTicking) return;
+        galleryTicking = true;
+        window.requestAnimationFrame(() => {
+          updateGalleryScroll();
+          galleryTicking = false;
+        });
+      };
+
+      updateGalleryScroll();
+      window.addEventListener("scroll", scheduleGalleryScroll, { passive: true });
+      window.addEventListener("resize", updateGalleryScroll);
+    }
+  }
+
   // Reveal-on-scroll (skipped when the user prefers reduced motion)
   const revealEls = document.querySelectorAll(".reveal");
   if (!reduceMotion && "IntersectionObserver" in window) {
