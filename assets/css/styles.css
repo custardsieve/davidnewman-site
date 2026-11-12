@@ -63,6 +63,7 @@
   --max-width: 100%;
   --measure: 46rem;
   --vh-hero: 75vh;
+  
 
   /* shape & motion */
   --radius: 0.5rem;
@@ -75,6 +76,8 @@
   --subtitle-letter-spacing: 0.06em;
   --subtitle-line-height: 1.3;
 }
+/* Small-viewport units stop the hero jumping when the mobile URL bar shows/hides */
+@supports (height: 1svh) { :root { --vh-hero: 75svh; } }
 
 html[data-theme="dark"] {
   color-scheme: dark;
@@ -159,6 +162,7 @@ ul { padding-left: 1.2em; }
 .section--inverse .container > * {
   grid-column: 1 / -1;
 }
+.padding-top { padding-top: var(--space-7); }
 
 /* 5. Components ----------------------------------------------------------- */
 /* header */
@@ -199,7 +203,18 @@ ul { padding-left: 1.2em; }
 .theme-toggle:hover { background: var(--color-surface); }
 .theme-toggle:active { transform: translateY(1px); }
 .theme-toggle__icon { display: block; width: 20px; height: 20px; background: transparent; }
-@media (max-width: 30rem) {
+/* Tablet & phone: brand | nav | toggle on one row, sized to content */
+@media (max-width: 47.99rem) {
+  .site-header__inner { grid-template-columns: minmax(0, 1fr) auto auto; }
+  .brand { grid-column: 1; }
+  .nav { grid-column: 2; }
+  .nav ul { gap: var(--space-4); }
+  .nav a { display: inline-block; padding-block: 0.5rem; } /* bigger tap target */
+  .site-header__actions { grid-column: 3; }
+  .theme-toggle { width: 2.75rem; height: 2.75rem; } /* 44px tap target, icon unchanged */
+}
+/* Small phones: brand on its own row, nav + toggle below */
+@media (max-width: 35.99rem) {
   .site-header__inner {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     row-gap: var(--space-2); padding-block: var(--space-2);
@@ -212,7 +227,8 @@ ul { padding-left: 1.2em; }
 }
 @media (max-width: 47.99rem) {
   .cs-toc { position: static; border-bottom: 1px solid var(--color-line); padding-bottom: var(--space-4);  }
-  .cs-toc ol { grid-auto-flow: column; justify-content: start; gap: var(--space-4); }
+  .cs-toc ol { grid-auto-flow: column; justify-content: start; gap: var(--space-4); overflow-x: auto; }
+  .cs-toc a { display: inline-block; padding-block: 0.5rem; white-space: nowrap; }
 }
 
 /* footer */
@@ -270,21 +286,24 @@ h2.title { grid-column: span var(--grid-column-full); }
 .skills { list-style: none; padding: 0; margin: 0; font-size: var(--fs-lg); line-height: 1.3; }
 
 /* case study */
-.cs { height: var(--vh-hero); align-items: center;}
-.cs-hero { display: grid; grid-template-columns: repeat(var(--grid-columns), 1fr); grid-column: 1 / span 12; gap: var(--space-4); align-items: start;}
+.cs { min-height: var(--vh-hero); align-items: center;} /* min-height: grows instead of overflowing */
+.cs-hero { display: grid; grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr)); grid-column: 1 / span 12; gap: var(--space-4); align-items: start;}
 .cs-hero p {grid-column: 1 / span 2;}
-.cs-hero__title { grid-column: 3 / span 4; var(--fs-xl); letter-spacing: -0.01em; margin-bottom: var(--space-4); margin-top: -8px; }
+.cs-hero__title { grid-column: 3 / span 4; letter-spacing: -0.01em; margin-bottom: var(--space-4); margin-top: -8px; }
 .cs-meta { display: grid; grid-template-columns: repeat(4, 1fr); grid-column: var(--grid-middle) / span 3; gap: var(--space-4); margin-top: 0; padding-top: 0; line-height: var(--lh-body); }
 @media (min-width: 48rem) { .cs-meta { grid-template-columns: repeat(3, 1fr); } }
 .cs-meta dt { font-size: var(--fs-xs); color: var(--color-fg); text-transform: uppercase; letter-spacing: var(--ls-eyebrow); margin-bottom: var(--space-3); }
 .cs-meta dd { margin: 0; color: var(--color-body); line-height: var(--lh-open); margin-bottom: var(--space-4); }
 .cs-cover img { width: 100%; border-radius: var(--radius); }
-.cs-toc { grid-column: 1 / span 2; blue; position: sticky; top: 6.4rem; align-self: start; }
+.cs-toc { grid-column: 1 / span 2; position: sticky; top: 6.4rem; align-self: start; }
 .cs-toc ol { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-2); }
 .cs-toc a { text-decoration: none; color: var(--color-muted); }
 .cs-toc a:hover, .cs-toc a.is-active { color: var(--color-fg); }
-.cs-section { grid-column:  3 / span 10; display: grid; grid-template-columns: subgrid; min-width: 0; 6rem; }
-.cs-section.grid { grid-template-columns: repeat(10, 1fr); gap: var(--space-4); }
+.cs-section { grid-column:  3 / span 10; display: grid; grid-template-columns: subgrid; min-width: 0; scroll-margin-top: 6rem; }
+.cs-section.grid { grid-template-columns: repeat(10, minmax(0, 1fr)); gap: var(--space-4); }
+/* Zero-specificity default: anything in a section without its own placement spans the full width
+   (e.g. a gallery when JS is off or reduced motion is on). Any class rule overrides it. */
+:where(.cs-section > *) { grid-column: 1 / -1; }
 .align-right { grid-column: 6 / span 5; margin-bottom: var(--space-6); }
 .cs-section + .cs-section { margin-top: var(--space-8); }
 .figure { margin: var(--space-5) 0; }
@@ -305,23 +324,83 @@ h2.title { grid-column: span var(--grid-column-full); }
   flex: 0 0 min(68vw, 48rem); max-width: none;
 }
 @media (max-width: 48rem) {
-  .gallery-scroll__viewport { position: static; height: auto; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
-  .gallery-scroll__viewport > .gallery--scroll { transform: none !important; }
-  .gallery-scroll__viewport > .gallery--scroll > img {
-    flex-basis: min(82vw, 30rem); width: min(82vw, 30rem); height: min(52vh, 26rem); scroll-snap-align: start;
+  /* Swipeable, edge-to-edge carousel: bleeds into the page gutter, snaps back to it */
+  .gallery-scroll { margin-inline: calc(var(--gutter) * -1); contain: none; }
+  .gallery-scroll__viewport {
+    position: static; height: auto; overflow-x: auto; overflow-y: hidden;
+    scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain;
+    padding-inline: var(--gutter); scroll-padding-inline: var(--gutter);
   }
+  .gallery-scroll__viewport > .gallery--scroll { height: auto; align-items: center; transform: none !important; }
+  .gallery-scroll__viewport > .gallery--scroll > img {
+    flex-basis: min(82vw, 30rem); width: min(82vw, 30rem);
+    height: min(52vh, 26rem); height: min(52svh, 26rem); scroll-snap-align: start;
+  }
+  /* "contain" galleries are UI screens/diagrams: show the whole image, never crop */
+  .gallery-scroll__viewport > .gallery--contain > img { height: auto; object-fit: contain; }
 }
 .callouts { display: grid; gap: var(--space-4); margin: var(--space-5) 0; }
 @media (min-width: 48rem) { .callouts { grid-template-columns: repeat(2, 1fr); } }
 .callout { padding: var(--space-4); background: var(--color-surface); border-radius: var(--radius); }
 .callout h3 { font-size: var(--fs-md); margin-bottom: var(--space-2); }
-.metrics { grid-column: span 10; display: grid; gap: var(--space-4); margin: var(--space-5) 0; grid-template-columns: subgrid; }
+.metrics { grid-column: 7 /span 5; display: grid; gap: var(--space-4); margin:  0 var(--space-5) 0; grid-template-columns: subgrid; }
 .metric { padding: var(--space-4) 0; border-top: 2px solid var(--color-fg); grid-column: span 3 }
 .metric__value { display: block; font-size: var(--fs-xl); font-weight: 700; line-height: 1; }
 .metric__label { display: block; margin-top: var(--space-2); color: var(--color-muted); }
 .metric-group h3 { font-size: var(--fs-md); margin-bottom: var(--space-2); }
 .next-project { display: grid; gap: var(--space-5); }
 @media (min-width: 48rem) { .next-project { grid-template-columns: repeat(2, 1fr); } }
+
+/* Case study — tablet (768–1023px): the 12-col placements get too narrow, so widen them */
+@media (min-width: 48rem) and (max-width: 63.99rem) {
+  .cs-hero__title,
+  .cs-meta { grid-column: 3 / -1; }
+  .cs-section .prose,
+  .align-right,
+  .metrics { grid-column: 1 / -1; }
+  .metrics { margin: var(--space-5) 0; }
+}
+
+/* Case study — phone (<768px): collapse every grid placement to a single full-width column */
+@media (max-width: 47.99rem) {
+  .cs { min-height: 0; padding-block: var(--space-6) var(--space-5); }
+  .cs-hero,
+  .grid--aside,
+  .cs-section,
+  .cs-section.grid { grid-template-columns: minmax(0, 1fr); }
+  .cs-hero > *,
+  .cs-hero p,
+  .grid--aside > *,
+  .cs-section > *,
+  .cs-section > h2.title,
+  .cards { grid-column: 1 / -1; }
+  .grid--aside { gap: var(--space-5); }
+
+  .cs-hero { gap: var(--space-4); }
+  .cs-hero .eyebrow { margin-bottom: 0; }
+  .cs-hero__title { margin: 0; }
+  .cs-meta {
+    grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--space-4);
+    padding-top: var(--space-4); border-top: 1px solid var(--color-line);
+  }
+  .cs-meta dt { margin-bottom: var(--space-2); }
+  .cs-meta dd { margin-bottom: var(--space-4); }
+
+  /* Body copy steps down a size so headings keep their hierarchy on small screens */
+  .cs-section .lead { font-size: var(--fs-md); line-height: 1.3; }
+  .align-right { margin-bottom: var(--space-4); }
+  .cs-section + .cs-section { margin-top: var(--space-7); }
+
+  .metrics {
+    grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr));
+    gap: var(--space-3); margin: var(--space-4) 0 var(--space-5);
+  }
+  .metric { grid-column: auto; }
+
+  /* Project cards: title above meta instead of a 9-col split */
+  .card__body { grid-template-columns: minmax(0, 1fr); gap: var(--space-1); }
+  .card__title, .card__meta { grid-column: 1 / -1; }
+}
 
 /* timeline (résumé) */
 .timeline { list-style: none; padding: 0; margin: 0; }

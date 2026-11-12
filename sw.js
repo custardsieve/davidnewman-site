@@ -1,6 +1,6 @@
 // Service worker: network-first for pages (always fresh), cache-first for static assets.
 // Bump VERSION whenever you change CSS/JS so visitors get the new files.
-const VERSION = "v1";
+const VERSION = "v2";
 const CACHE = `dn-${VERSION}`;
 const BASE = new URL(self.registration.scope).pathname; // "/" on your domain, "/davidnewman-site/" on GitHub Pages
 const PRECACHE = ["", "work/", "about/", "contact/", "offline.html", "assets/css/styles.css", "assets/js/main.js"].map((p) => BASE + p);
