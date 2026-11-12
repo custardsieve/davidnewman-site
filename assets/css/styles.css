@@ -225,11 +225,6 @@ ul { padding-left: 1.2em; }
   .nav a { font-size: 0.75rem; }
   .site-header__actions { grid-column: 3; grid-row: 2; }
 }
-@media (max-width: 47.99rem) {
-  .cs-toc { position: static; border-bottom: 1px solid var(--color-line); padding-bottom: var(--space-4);  }
-  .cs-toc ol { grid-auto-flow: column; justify-content: start; gap: var(--space-4); overflow-x: auto; }
-  .cs-toc a { display: inline-block; padding-block: 0.5rem; white-space: nowrap; }
-}
 
 /* footer */
 .site-footer { border-top: 1px solid var(--color-line); padding-block: var(--space-5); font-size: var(--fs-xs); }
@@ -325,19 +320,19 @@ h2.title { grid-column: span var(--grid-column-full); }
 }
 @media (max-width: 48rem) {
   /* Swipeable, edge-to-edge carousel: bleeds into the page gutter, snaps back to it */
-  .gallery-scroll { margin-inline: calc(var(--gutter) * -1); contain: none; }
+  .gallery-scroll { margin-inline: calc(var(--gutter) * -1); margin-block: var(--space-4); contain: none; }
   .gallery-scroll__viewport {
     position: static; height: auto; overflow-x: auto; overflow-y: hidden;
-    scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain;
     padding-inline: var(--gutter); scroll-padding-inline: var(--gutter);
   }
-  .gallery-scroll__viewport > .gallery--scroll { height: auto; align-items: center; transform: none !important; }
+  .gallery-scroll__viewport > .gallery--scroll { height: auto; transform: none !important; }
+  /* Filmstrip: every image the same height, width follows its own aspect ratio,
+     so wide diagrams stay legible and you swipe across them instead of shrinking them */
   .gallery-scroll__viewport > .gallery--scroll > img {
-    flex-basis: min(82vw, 30rem); width: min(82vw, 30rem);
-    height: min(52vh, 26rem); height: min(52svh, 26rem); scroll-snap-align: start;
+    flex: 0 0 auto; width: auto; max-width: none;
+    height: clamp(14rem, 62vw, 26rem); object-fit: contain; scroll-snap-align: start;
   }
-  /* "contain" galleries are UI screens/diagrams: show the whole image, never crop */
-  .gallery-scroll__viewport > .gallery--contain > img { height: auto; object-fit: contain; }
 }
 .callouts { display: grid; gap: var(--space-4); margin: var(--space-5) 0; }
 @media (min-width: 48rem) { .callouts { grid-template-columns: repeat(2, 1fr); } }
@@ -363,18 +358,25 @@ h2.title { grid-column: span var(--grid-column-full); }
 
 /* Case study — phone (<768px): collapse every grid placement to a single full-width column */
 @media (max-width: 47.99rem) {
-  .cs { min-height: 0; padding-block: var(--space-6) var(--space-5); }
+  .cs { min-height: 0; padding-block: var(--space-6) var(--space-3); }
+  .cs-section.grid { row-gap: 0; } /* spacing comes from margins, same as non-grid sections */
   .cs-hero,
   .grid--aside,
   .cs-section,
   .cs-section.grid { grid-template-columns: minmax(0, 1fr); }
   .cs-hero > *,
   .cs-hero p,
+  .grid--aside,
   .grid--aside > *,
   .cs-section > *,
   .cs-section > h2.title,
   .cards { grid-column: 1 / -1; }
   .grid--aside { gap: var(--space-5); }
+
+  /* On-page nav becomes a horizontal row (must come after the base .cs-toc rule to win) */
+  .cs-toc { position: static; border-bottom: 1px solid var(--color-line); padding-bottom: var(--space-2); }
+  .cs-toc ol { grid-auto-flow: column; justify-content: start; gap: var(--space-4); overflow-x: auto; }
+  .cs-toc a { display: inline-block; padding-block: 0.5rem; white-space: nowrap; }
 
   .cs-hero { gap: var(--space-4); }
   .cs-hero .eyebrow { margin-bottom: 0; }
