@@ -85,8 +85,27 @@
     }
     actions.appendChild(toggle);
 
-    const onScroll = () => header.classList.toggle("is-scrolled", window.scrollY > 8);
-    onScroll();
+    // Brand condenses from the full intro to the bold name as you scroll.
+    // BRAND_SCROLL_RANGE = pixels of scroll over which the change happens.
+    const BRAND_SCROLL_RANGE = 160;
+    const brandReduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let headerTicking = false;
+    const updateHeader = () => {
+      const y = window.scrollY;
+      header.classList.toggle("is-scrolled", y > 8);
+      const progress = brandReduceMotion
+        ? (y > 8 ? 1 : 0)
+        : Math.min(1, Math.max(0, y / BRAND_SCROLL_RANGE));
+      header.style.setProperty("--brand-p", progress.toFixed(3));
+      header.classList.toggle("is-condensed", progress >= 1);
+      headerTicking = false;
+    };
+    const onScroll = () => {
+      if (headerTicking) return;
+      headerTicking = true;
+      window.requestAnimationFrame(updateHeader);
+    };
+    updateHeader();
     window.addEventListener("scroll", onScroll, { passive: true });
   }
 

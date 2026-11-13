@@ -194,6 +194,29 @@ ul { padding-left: 1.2em; }
 }
 .nav a[aria-current="page"] { color: var(--color-accent); }
 .brand { white-space: nowrap; line-height: var(--subtitle-line-height); }
+
+/* Scroll-linked brand: "Product Design strategy / of David Newman" → "DAVID NEWMAN" (bold).
+   --brand-p goes 0 → 1 over the first part of the scroll (set in main.js). */
+.brand {
+  --a: var(--brand-p, 0);                      /* 0 → 1 as the intro folds away */
+  display: block;
+}
+.brand__line {
+  display: block; overflow: hidden;
+  max-height: calc((1 - var(--a)) * 1lh);
+  opacity: calc(1 - var(--a) * 1.5);
+}
+.brand__of {
+  /* fades out over the first 30%, then its space closes over the remaining 70% */
+  --close: clamp(0, 1 - (var(--a) - 0.3) / 0.7, 1);
+  display: inline-block; overflow: hidden; vertical-align: bottom;
+  max-width: calc(var(--close) * 2em);
+  margin-right: calc(var(--close) * 0.35em);
+  opacity: calc(1 - var(--a) / 0.3);
+}
+/* Name is a <strong>, kept regular weight until the intro has fully folded away */
+.brand__name { font-weight: inherit; }
+.site-header.is-condensed .brand__name { font-weight: 700; }
 .theme-toggle {
   display: inline-grid; place-items: center; width: 1.5rem; height: 1.5rem;
   padding: 0; border: 0; border-radius: 50%;
